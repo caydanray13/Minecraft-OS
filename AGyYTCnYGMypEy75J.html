@@ -1,0 +1,1804 @@
+<html><head><base href="/">
+    <title>MinecraftOS - Java Development</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tahoma&amp;display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        /* Add at beginning of existing styles */
+        body {
+            margin: 0;
+            font-family: 'Tahoma', sans-serif;
+            background: #333;
+            overflow: hidden;
+            cursor: url('/pi.png'), auto;
+        }
+
+        body.dark {
+            background: #222;
+            color: #fff;
+        }
+
+        body.light {
+            background: #fff;
+            color: #000;
+        }
+
+        .high-contrast {
+            filter: contrast(150%);
+        }
+
+        .desktop {
+            width: 100vw;
+            height: 100vh;
+            background: url('/Minecraft.png') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(to bottom, #2A6EC5, #0F44A0, #225DC2);
+            border-top: 1px solid #3B78D4;
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .start-button {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(to bottom, #3C8B1A, #2E6915) !important;
+            border: 1px solid #2B6216 !important;
+            border-radius: 3px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            transition: background 0.2s;
+        }
+
+        .start-button img {
+            width: 20px;
+            height: 20px;
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
+        }
+
+        .start-button:hover {
+            background: linear-gradient(to bottom, #4CA123, #377D19) !important;
+        }
+
+        .window {
+            position: absolute;
+            background: #ECE9D8;
+            border: 1px solid #0054E3;
+            border-radius: 8px 8px 0 0;
+            min-width: 400px;  
+            min-height: 300px; 
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+            resize: both;
+            overflow: auto;
+        }
+
+        .window[data-app="Minecraft"] {
+            width: 800px;
+            height: 600px;
+            min-width: 800px;
+            min-height: 600px;
+        }
+
+        .window[data-app="VM"] {
+            width: 800px; 
+            height: 600px;
+            min-width: 800px;
+            min-height: 600px;
+        }
+
+        .window[data-app="About"] {
+            width: 500px;
+            height: 400px;
+            min-width: 500px;
+            min-height: 400px;
+        }
+
+        .window[data-app="Thank you"] {
+            width: 400px;
+            height: 300px;
+            min-width: 400px;
+            min-height: 300px;
+        }
+
+        .window[data-app="VM Console"] {
+            width: 600px;
+            height: 400px;
+            min-width: 600px;
+            min-height: 400px;
+        }
+
+        .window[data-app="Calculator"] {
+            width: 300px;
+            height: 400px;
+            min-width: 300px;
+            min-height: 400px;
+        }
+
+        .window[data-app="Memory Viewer"] {
+            width: 500px;
+            height: 400px;
+            min-width: 500px;
+            min-height: 400px;
+        }
+
+        .window[data-app="Intercraft"] {
+            width: 900px;
+            height: 600px;
+            min-width: 900px;
+            min-height: 600px;
+        }
+
+        .window[data-app="Discraft"] {
+            width: 800px;
+            height: 600px;
+            min-width: 800px;
+            min-height: 600px;
+        }
+
+        .window[data-app="How to see if I am Online"] {
+            width: 500px;
+            height: 400px;
+            min-width: 500px;
+            min-height: 400px;
+        }
+
+        .window[data-app="Best Remixes"] {
+            width: 700px;
+            height: 500px;
+            min-width: 700px;
+            min-height: 500px;
+        }
+
+        .window[data-app="Cloud Storage"] {
+            width: 900px;
+            height: 600px;
+            min-width: 900px;
+            min-height: 600px;
+        }
+
+        .window[data-app="Paint"] {
+            width: 900px; 
+            height: 600px;
+            min-width: 900px;
+            min-height: 600px;
+        }
+
+        .window[data-app="Spotify"] {
+            width: 800px;
+            height: 600px;
+            min-width: 800px;
+            min-height: 600px;
+        }
+
+        .window-header {
+            background: linear-gradient(to right, #0054E3, #2E87EA, #0054E3);
+            color: white;
+            padding: 5px 8px;
+            border-radius: 7px 7px 0 0;
+            display: flex;
+            justify-content: space-between;
+            cursor: move;
+        }
+
+        .window-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .minimize-btn, .maximize-btn {
+            background: linear-gradient(to bottom, #2A6EC5, #0F44A0);
+            color: white;
+            border: 1px solid #0C55C4;
+            border-radius: 3px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: url('/sw.jpg'), pointer !important;
+            margin-right: 5px;
+        }
+
+        .minimize-btn:hover, .maximize-btn:hover {
+            background: linear-gradient(to bottom, #3C82D8, #1957B3);
+        }
+
+        .window.minimized {
+            height: 30px !important;
+            overflow: hidden;
+        }
+
+        .window.maximized {
+            width: 100vw !important;
+            height: calc(100vh - 40px) !important;
+            top: 0 !important;
+            left: 0 !important;
+            transform: none !important;
+        }
+
+        .window-content {
+            padding: 15px;
+            background: #FFFFFF;
+            border-top: 1px solid #7BA4E2;
+        }
+
+        .window[data-app="Minecraft"] .window-content {
+            padding: 0;
+            height: calc(100% - 30px); 
+            overflow: hidden;
+        }
+
+        .close-btn {
+            background: linear-gradient(to bottom, #E45D51, #D83B31);
+            color: white;
+            border: 1px solid #C22B22;
+            border-radius: 3px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background: linear-gradient(to bottom, #F86B5E, #E84A3F);
+        }
+
+        .icon {
+            width: 64px;
+            height: 64px;
+            margin: 10px;
+            text-align: center;
+            color: white;
+            cursor: url('/sw.jpg'), pointer !important;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .icon img {
+            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.8));
+        }
+
+        .icon svg {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 5px;
+        }
+
+        .icon-label {
+            font-family: 'Tahoma', sans-serif;
+            font-size: 11px;
+            text-shadow: 2px 2px 3px rgba(0,0,0,0.8);
+            color: white;
+            font-weight: bold;
+        }
+
+        .console-input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-family: monospace;
+            width: 100%;
+            outline: none;
+        }
+
+        .memory-display {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .memory-cell {
+            background: #8B8B8B;
+            border: 2px inset #DBDBDB;
+            padding: 5px;
+            text-align: center;
+            font-family: monospace;
+        }
+
+        .register {
+            background: #000082;
+            color: white;
+            padding: 5px;
+            margin: 5px 0;
+            font-family: monospace;
+        }
+
+        .start-menu {
+            position: fixed;
+            bottom: 40px;
+            left: 0;
+            width: 250px;
+            background: linear-gradient(135deg, #0C55C4 0%, #165ACA 50%, #0C55C4 100%);
+            border: 1px solid #0C55C4;
+            border-radius: 6px 6px 0 0;
+            box-shadow: 2px -2px 5px rgba(0,0,0,0.2);
+            display: none;
+            padding: 5px 2px;
+            z-index: 1000;
+        }
+
+        .start-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 20px;
+            border-radius: 3px;
+            margin: 2px 3px;
+            color: white;
+            cursor: url('/sw.jpg'), pointer !important;
+            transition: background 0.2s;
+        }
+
+        .start-menu-item:hover {
+            background: linear-gradient(to bottom, #2E87EA, #225FD3);
+            color: white;
+            cursor: url('/sw.jpg'), pointer !important;
+        }
+
+        .start-menu-item svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.3));
+        }
+
+        .start-menu-item img {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.3));
+        }
+
+        /* New styles for VM window */
+        .vm-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .vm-controls {
+            padding: 10px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .vm-button {
+            margin-right: 5px;
+            padding: 5px 10px;
+            background: linear-gradient(to bottom, #2A6EC5, #0F44A0);
+            border: 1px solid #0C55C4;
+            color: white;
+            border-radius: 3px;
+            cursor: url('/sw.jpg'), pointer !important;
+        }
+
+        .vm-button:hover {
+            background: linear-gradient(to bottom, #3C82D8, #1957B3);
+        }
+
+        #vm-console {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        /* Vendor prefixes for better browser support */
+        .vm-container:-webkit-full-screen {
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+        }
+
+        .vm-container:-moz-full-screen {
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+        }
+
+        .vm-container:-ms-fullscreen {
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+        }
+
+        .window[data-app="Minecraft"] .game-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .window[data-app="Minecraft"] iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .calculator-display {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 5px;
+            text-align: right;
+            font-family: monospace;
+        }
+
+        .calculator-button {
+            width: 50px;
+            height: 40px;
+            margin: 2px;
+            font-size: 18px;
+            background: linear-gradient(to bottom, #ECE9D8, #FFFFFF);
+            border: 1px solid #0054E3;
+            border-radius: 3px;
+            cursor: url('/sw.jpg'), pointer !important;
+        }
+
+        .calculator-button:hover {
+            background: linear-gradient(to bottom, #2A6EC5, #0F44A0);
+            color: white;
+        }
+
+        .vm-window {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        button:hover,
+        input[type="button"]:hover,
+        input[type="submit"]:hover,
+        input[type="reset"]:hover,
+        .icon:hover,
+        .start-button:hover,
+        .start-menu-item:hover,
+        .close-btn:hover,
+        .vm-button:hover,
+        .calculator-button:hover,
+        .app-card:hover,
+        .folder-item:hover,
+        .file-item:hover,
+        .game-coder-button:hover,
+        .setup-button:hover,
+        .startup-button:hover,
+        .settings-category:hover,
+        .tab-button:hover {
+            cursor: url('/sw.jpg'), pointer !important;
+        }
+
+        input[type="range"]::-webkit-slider-thumb,
+        input[type="range"]::-moz-range-thumb,
+        input[type="range"]::-ms-thumb {
+            cursor: url('/sw.jpg'), pointer !important;
+        }
+
+        select::-ms-expand {
+            cursor: url('/sw.jpg'), pointer !important;
+        }
+        
+        /* Add to existing styles */
+        .about-content {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .about-logo {
+            width: 128px;
+            height: 128px;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        .about-version {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .about-description {
+            margin-bottom: 20px;
+        }
+
+        .about-credits {
+            border-top: 1px solid #ccc;
+            padding-top: 20px;
+        }
+        
+        .thank-you-content {
+          padding: 30px;
+          font-size: 16px;
+          line-height: 1.6;
+          text-align: center;
+          border-radius: 10px;
+          margin: 20px;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          animation: rainbow-bg 10s linear infinite;
+          color: white;
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .thank-you-content p {
+          margin: 15px 0;
+        }
+
+        .discord-link {
+          color: #ffffff;
+          text-decoration: none;
+          font-weight: bold;
+          transition: all 0.3s ease;
+          padding: 5px 10px;
+          background: rgba(255,255,255,0.2);
+          border-radius: 5px;
+        }
+
+        .discord-link:hover {
+          background: rgba(255,255,255,0.3);
+          text-decoration: none;
+          transform: scale(1.05);
+          cursor: url('/sw.jpg'), pointer !important;
+        }
+
+        @keyframes rainbow-bg {
+          0% { background: linear-gradient(45deg, #ff2400, #e81d1d); }
+          20% { background: linear-gradient(45deg, #e8b71d, #e3e81d); }
+          40% { background: linear-gradient(45deg, #1de840, #1ddde8); }
+          60% { background: linear-gradient(45deg, #2b1de8, #dd00f3); }
+          80% { background: linear-gradient(45deg, #dd00f3, #ff2400); }
+          100% { background: linear-gradient(45deg, #ff2400, #e81d1d); }
+        }
+        
+        .browser-toolbar {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .browser-toolbar input {
+            flex: 1;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .browser-toolbar button {
+            padding: 5px 15px;
+            background: linear-gradient(to bottom, #2A6EC5, #0F44A0);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .browser-toolbar button:hover {
+            background: linear-gradient(to bottom, #3C82D8, #1957B3);
+        }
+
+        .browser-content {
+            height: calc(100% - 50px);
+        }
+
+        .browser-content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .discraft-container {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            height: 100%;
+            background: #36393f;
+            color: #fff;
+            overflow: hidden; /* Prevent double scrollbars */
+        }
+
+        .discraft-sidebar {
+            background: #2f3136;
+            padding: 10px;
+            border-right: 1px solid #202225;
+            overflow-y: auto;
+            max-height: 100%;
+            scrollbar-width: thin;
+            scrollbar-color: #7289da #2f3136;
+        }
+
+        .discraft-sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .discraft-sidebar::-webkit-scrollbar-track {
+            background: #2f3136;
+            border-radius: 4px;
+        }
+
+        .discraft-sidebar::-webkit-scrollbar-thumb {
+            background: #7289da;
+            border-radius: 4px;
+        }
+
+        .discraft-sidebar::-webkit-scrollbar-thumb:hover {
+            background: #677bc4;
+        }
+
+        .discraft-main {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden; /* Prevent double scrollbars */
+        }
+
+        .discraft-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(100% - 160px); /* Account for input area and header */
+            scrollbar-width: thin;
+            scrollbar-color: #7289da #2f3136;
+        }
+
+        .discraft-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .discraft-messages::-webkit-scrollbar-track {
+            background: #2f3136;
+            border-radius: 4px;
+        }
+
+        .discraft-messages::-webkit-scrollbar-thumb {
+            background: #7289da;
+            border-radius: 4px;
+        }
+
+        .discraft-messages::-webkit-scrollbar-thumb:hover {
+            background: #677bc4;
+        }
+
+        .discraft-message {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .discraft-message:hover {
+            background: rgba(114, 137, 218, 0.1);
+        }
+
+        .discraft-input {
+            padding: 20px;
+            background: #40444b;
+            border-top: 1px solid #202225;
+            min-height: 80px;
+            flex-shrink: 0; /* Prevent input from shrinking */
+        }
+
+        .discraft-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .discraft-message-content {
+            flex: 1;
+        }
+
+        .discraft-username {
+            font-weight: bold;
+            color: #7289da;
+        }
+
+        .discraft-text {
+            color: #dcddde;
+        }
+
+        .discraft-input textarea {
+            width: 100%;
+            padding: 10px;
+            background: #40444b;
+            border: 1px solid #202225;
+            border-radius: 5px;
+            color: #dcddde;
+            resize: none;
+        }
+
+        .discraft-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .discraft-user:hover {
+            background: #393c43;
+        }
+
+        .discraft-logo {
+            width: 180px;
+            height: 60px;
+            margin: 10px auto;
+            display: block;
+        }
+
+        .discraft-call-controls {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: #2f3136;
+            border-top: 1px solid #202225;
+        }
+
+        .discraft-call-button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            background: #7289da;
+            color: white;
+            cursor: pointer;
+        }
+
+        .discraft-call-button:hover {
+            background: #677bc4;
+        }
+
+        .discraft-call-status {
+            padding: 5px 10px;
+            background: #43b581;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .remix-container {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .remix-item {
+            display: flex;
+            gap: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            align-items: center;
+        }
+
+        .remix-item img {
+            width: 200px;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .remix-info {
+            flex: 1;
+        }
+
+        .remix-info h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: var(--text);
+        }
+
+        .remix-info a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+
+        .remix-info a:hover {
+            text-decoration: underline;
+        }
+
+        .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: transparent;
+            cursor: se-resize;
+        }
+
+        .resize-handle-right {
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            cursor: e-resize;
+        }
+
+        .resize-handle-bottom {
+            bottom: 0;
+            left: 0;
+            height: 5px;
+            width: 100%;
+            cursor: s-resize;
+        }
+
+        .resize-handle-both {
+            right: 0;
+            bottom: 0;
+            cursor: se-resize;
+        }
+    </style>
+    <!-- Update audio elements with preload and error handling -->
+    <audio id="start-open-sound" src="/co.MP3" preload="auto" onerror="console.log(&apos;Error loading start-open-sound&apos;)"></audio>
+    <audio id="start-close-sound" src="/cc.MP3" preload="auto" onerror="console.log(&apos;Error loading start-close-sound&apos;)"></audio>
+</head>
+<body>
+    <div class="desktop">
+        <div class="taskbar">
+            <div class="start-button">
+                <img src="/cc.png" alt="Start" id="start-icon" width="20" height="20">
+            </div>
+        </div>
+        <div class="start-menu">
+            <div class="start-menu-item" onclick="handleStartMenuClick(&apos;startup&apos;)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#866F5B" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Welcome Screen
+            </div>
+            <div class="start-menu-item" onclick="handleStartMenuClick(&apos;programs&apos;)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#866F5B" d="M20,19V7H4V19H20M20,3A2,2 0 0,1 22,5V19A2,2 0 0,1 20,21H4A2,2 0 0,1 2,19V5C2,3.89 2.9,3 4,3H20M13,17V15H18V17H13M9.58,13L5.57,9H8.4L11.7,12.3C12.09,12.69 12.09,13.33 11.7,13.72L8.42,17H5.59L9.58,13Z"/>
+                </svg>
+                Programs
+            </div>
+            <div class="start-menu-item" onclick="handleStartMenuClick(&apos;system&apos;)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#866F5B" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M12,8.5C14.34,8.5 16.46,9.43 18,10.94L16.8,12.12C15.58,10.91 13.88,10.17 12,10.17C10.12,10.17 8.42,10.91 7.2,12.12L2.46,9.37C2.21,8.95 2.27,8.22 2.46,8.73L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
+            </svg>
+            System Info
+        </div>
+            <div class="start-menu-item" onclick="handleStartMenuClick(&apos;memory&apos;)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#866F5B" d="M2,2H8V4H16V2H22V8H20V16H22V22H16V20H8V22H2V16H4V8H2V2M16,16V8H8V16H16M4,4V6H6V4H4M18,4V6H20V4H18M4,18V20H6V18H4M18,18V20H20V18H18Z"/>
+                </svg>
+                Memory
+            </div>
+            <div class="start-menu-item" onclick="handleStartMenuClick(&apos;calculator&apos;)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#866F5B" d="M7,2H17A2,2 0 0,1 19,4V20A2,2 0 0,1 17,22H7A2,2 0 0,1 5,20V4A2,2 0 0,1 7,2M7,4V8H17V4H7M7,10V12H9V10H7M11,10V12H13V10H11M15,10V12H17V10H15M7,14V16H9V14H7M11,14V16H13V14H11M15,14V16H17V14H15M7,18V20H9V18H7M11,18V20H13V18H11M15,18V20H17V18H15Z"/>
+                </svg>
+                Calculator
+            </div>
+            <!-- Add VM option to start menu -->
+            <div class="start-menu-item" onclick="handleStartMenuClick(&apos;vm&apos;)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#866F5B" d="M20,12H4V4H20M20,18H4V12H20M20,2H4C2,2 1,4 1,5V19C1,20.1 1.9,21 3,21H21C22.1,21 23,20.1 23,19V5C23,3.9 22.1,3 21,3Z"/>
+                </svg>
+                Virtual Machine
+            </div>
+            <!-- Add Minecraft option to start menu -->
+            <div class="start-menu-item" onclick="handleStartMenuClick(&apos;minecraft&apos;)">
+                <img src="/Minecraft12.png" alt="Minecraft" style="width: 20px; height: 20px; margin-right: 10px;">
+                Minecraft
+            </div>
+            <!-- Add OS Kernel option to start menu -->
+            <div class="start-menu-item" onclick="handleStartMenuClick(&apos;kernel&apos;)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#866F5B" d="M4,4H20V20H4V4M6,6V18H18V6H6Z"/>
+                </svg>
+                OS Kernel
+            </div>
+            <!-- Add App Store option to start menu -->
+            <div class="start-menu-item" onclick="handleStartMenuClick(&apos;appstore&apos;)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#866F5B" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M7,10L12,15L17,10H7Z"/>
+                </svg>
+                App Store
+            </div>
+            <!-- Add File Explorer option to start menu -->
+            <div class="start-menu-item" onclick="handleStartMenuClick(&apos;files&apos;)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#866F5B" d="M20,18H4V8H20M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
+                </svg>
+                File Explorer
+            </div>
+            <!-- Add Game Coder option to start menu -->
+            <div class="start-menu-item" onclick="handleStartMenuClick(&apos;gamecoder&apos;)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#866F5B" d="M14.6,16.6L19.2,12L14.6,7.4L16,6L22,12L16,18L14.6,16.6M9.4,16.6L4.8,12L9.4,7.4L8,6L2,12L8,18L9.4,16.6Z"/>
+                </svg>
+                Game Coder
+            </div>
+            <!-- Add System Restore option to start menu -->
+            <div class="start-menu-item" onclick="handleStartMenuClick(&apos;restore&apos;)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#866F5B" d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+                </svg>
+                System Restore
+            </div>
+            <!-- Add Settings option to start menu -->
+            <div class="start-menu-item" onclick="handleStartMenuClick(&apos;settings&apos;)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#866F5B" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M12,8.5C14.34,8.5 16.46,9.43 18,10.94L16.8,12.12C15.58,10.91 13.88,10.17 12,10.17C10.12,10.17 8.42,10.91 7.2,12.12L2.46,9.37C2.21,8.95 2.27,8.22 2.46,8.73L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
+            </svg>
+            Settings
+        </div>
+        <!-- Add About option to start menu -->
+        <div class="start-menu-item" onclick="handleStartMenuClick(&apos;about&apos;)">
+            <svg viewBox="0 0 24 24">
+                <path fill="#866F5B" d="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+            </svg>
+            About MinecraftOS
+        </div>
+        <!-- Add Thank you option to start menu -->
+        <div class="start-menu-item" onclick="handleStartMenuClick(&apos;thanks&apos;)">
+          <svg viewBox="0 0 24 24">
+            <path fill="#866F5B" d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"/>
+          </svg>
+          Thank You Note
+        </div>
+        <!-- Add Online Status option to start menu -->
+        <div class="start-menu-item" onclick="handleStartMenuClick(&apos;online&apos;)">
+            <svg viewBox="0 0 24 24">
+                <path fill="#866F5B" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8L10,17Z"/>
+            </svg>
+            Online Status
+        </div>
+        <!-- Add Intercraft option to start menu -->
+        <div class="start-menu-item" onclick="handleStartMenuClick(&apos;intercraft&apos;)">
+            <svg viewBox="0 0 24 24">
+                <path fill="#866F5B" d="M21,3H3C2,3 1,4 1,5V19C1,20.1 1.9,21 3,21H21C22.1,21 23,20.1 23,19V5C23,3.9 22.1,3 21,3Z"/>
+            </svg>
+            Intercraft Browser
+        </div>
+        <!-- Add Discraft option to start menu -->
+        <div class="start-menu-item" onclick="handleStartMenuClick(&apos;discraft&apos;)">
+            <img src="/asd.jpg" alt="Discraft" style="width: 20px; height: 20px; margin-right: 10px;">
+            Discraft
+        </div>
+        <div class="start-menu-item" onclick="handleStartMenuClick(&apos;bestremixes&apos;)">
+            <svg viewBox="0 0 24 24">
+                <path fill="#866F5B" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+            Best Remixes
+        </div>
+        <div class="start-menu-item" onclick="handleStartMenuClick(&apos;cloudstorage&apos;)">
+            <svg viewBox="0 0 24 24">
+                <path fill="#866F5B" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+            </svg>
+            Cloud Storage
+        </div>
+        <div class="start-menu-item" onclick="handleStartMenuClick(&apos;paint&apos;)">
+            <svg viewBox="0 0 24 24">
+                <path fill="#866F5B" d="M19,3H5C3.9,3 3,3.9 3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M17,13H7v-2h10V13z"/>
+            </svg>
+            Paint
+        </div>
+        <div class="start-menu-item" onclick="handleStartMenuClick(&apos;spotify&apos;)">
+            <svg viewBox="0 0 24 24">
+                <path fill="#866F5B" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+            </svg>
+            Spotify
+        </div>
+    </div>
+</div>
+
+<div id="bypass-terminal" class="terminal">
+  <div id="terminal-output">Terminal Access<br>&gt;</div>
+  <input type="text" id="terminal-input" onkeydown="handleTerminalInput(event)">
+</div>
+
+<script>const room = new WebsimSocket();
+async function initializeUsername() {
+  const user = await room.party.client;
+  currentSettings.user.username = user.username;
+  localStorage.setItem('minecraftOS_settings', JSON.stringify(currentSettings));
+}
+initializeUsername();
+let ctrlPressCount = 0;
+let ctrlPressTimer = null;
+let windows = [];
+let activeWindow = null;
+let offsetX, offsetY;
+let memory = new Array(64).fill(0);
+let registers = {
+  A: 0,
+  B: 0,
+  C: 0,
+  PC: 0
+};
+let startMenuOpen = false;
+let currentVM = null;
+let downloadQueue = [];
+let isResizing = false;
+let resizeType = null;
+let resizeStartX = 0;
+let resizeStartY = 0;
+let resizeStartWidth = 0;
+let resizeStartHeight = 0;
+const defaultSettings = {
+  system: {
+    clockSpeed: 1.0,
+    memoryAllocation: 512,
+    defaultApp: 'none',
+    timeFormat: '24h',
+    displayMode: 'normal'
+  },
+  user: {
+    username: 'Player',
+    theme: 'default',
+    colorblindMode: false,
+    textToSpeech: false
+  },
+  sound: {
+    masterVolume: 1.0,
+    effectsVolume: 1.0,
+    musicVolume: 1.0
+  },
+  accessibility: {
+    textSize: 'normal',
+    highContrast: false
+  },
+  performance: {
+    showFPS: true,
+    showMemory: true
+  }
+};
+let currentSettings = JSON.parse(localStorage.getItem('minecraftOS_settings')) || defaultSettings;
+function createWindow(title) {
+  const win = document.createElement('div');
+  win.className = 'window';
+  win.setAttribute('data-app', title);
+  win.style.left = '50%';
+  win.style.top = '50%';
+  win.style.transform = 'translate(-50%, -50%)';
+  const winHeader = document.createElement('div');
+  winHeader.className = 'window-header';
+  winHeader.innerHTML = `
+                <span>${title}</span>
+                <div class="window-controls">
+                    <div class="minimize-btn" onclick="minimizeWindow(this.closest('.window'))">_</div>
+                    <div class="maximize-btn" onclick="maximizeWindow(this.closest('.window'))">□</div>
+                    <div class="close-btn" onclick="closeWindow(this.closest('.window'))">×</div>
+                </div>
+            `;
+  win.appendChild(winHeader);
+  const winContent = document.createElement('div');
+  winContent.className = 'window-content';
+  switch (title) {
+    case 'Minecraft':
+      winContent.innerHTML = `
+                        <div class="game-container">
+                            <iframe src="https://websim.ai/p/79ro1yf6zykm4b61ey41" style="width:100%; height:100%; border:none;"></iframe>
+                        </div>
+                    `;
+      break;
+    case 'About':
+      winContent.innerHTML = `
+                        <div class="about-content">
+                            <img src="/Minecraft12.png" alt="MinecraftOS Logo" class="about-logo">
+                            <div class="about-version">MinecraftOS Version 1.4.7</div>
+                            <div class="about-description">
+                                <p>MinecraftOS is an innovative operating system simulation that combines the creative world of Minecraft with modern computing interfaces.</p>
+                                <p>Key Features:</p>
+                                <ul>
+                                    <li>Virtual Machine Console</li>
+                                    <li>Memory Management</li>
+                                    <li>Calculator</li>
+                                    <li>Minecraft Integration</li>
+                                    <li>File Management</li>
+                                </ul>
+                            </div>
+                            <div class="about-credits">
+                                <h3>System Information</h3>
+                                <p>Memory: ${currentSettings.system.memoryAllocation}MB</p>
+                                <p>Clock Speed: ${currentSettings.system.clockSpeed}x</p>
+                                <p>Display Mode: ${currentSettings.system.displayMode}</p>
+                                <p>Username: ${room.party.client ? room.party.client.username : 'Loading...'}</p>
+                            </div>
+                        </div>
+                    `;
+      if (!room.party.client) {
+        room.party.subscribe(() => {
+          if (room.party.client) {
+            const usernameElement = winContent.querySelector('.about-credits p:last-child');
+            if (usernameElement) {
+              usernameElement.textContent = `Username: ${room.party.client.username}`;
+            }
+          }
+        });
+      }
+      break;
+    case 'Thank you':
+      winContent.innerHTML = `
+                        <div class="thank-you-content">
+                            <p>Thank you, thank you all Websim, I made this for fun and didn&apos;t expect to actually get everything to go like this :)</p>
+                            <p>If you want dm or VC me on Discord, <a href="https://discord.com/users/localowlyt" class="discord-link" target="_blank">@localowlyt</a> is my Discord.</p>
+                            <p>-Local Owl YT<br>12-26-2024 8:28PM</p>
+                        </div>
+                    `;
+      break;
+    case 'VM':
+      winContent.innerHTML = `
+                        <div class="vm-container">
+                            <iframe src="https://websim.ai/p/bmz4tcq8tw4pfrbz3dli" style="width:100%; height:100%; border:none;"></iframe>
+                            <div class="vm-controls">
+                                <button class="vm-button" onclick="vmAction('start')">Start</button>
+                                <button class="vm-button" onclick="vmAction('stop')">Stop</button>
+                                <button class="vm-button" onclick="vmAction('restart')">Restart</button>
+                                <button class="vm-button" onclick="toggleFullscreen()">Fullscreen</button>
+                            </div>
+                            <div id="vm-console" style="background: #000; color: #0f0; font-family: monospace; padding: 10px; height: 100px; overflow-y: auto;">
+                                VM Console Output:
+                            </div>
+                        </div>
+                    `;
+      break;
+    case 'VM Console':
+      winContent.innerHTML = `
+                        <div style="background: #000; color: #0f0; font-family: monospace; padding: 10px; height: 300px; overflow-y: auto;">
+                            <div id="console-output">VM Console Started...</div>
+                            <input type="text" id="console-input" style="width: 100%; background: #000; color: #0f0; border: none; outline: none;" 
+                                placeholder="Enter command..." onkeydown="if(event.key==='Enter')handleConsoleInput(this.value)">
+                        </div>
+                    `;
+      break;
+    case 'How to see if I am Online':
+      winContent.innerHTML = `
+            <div style="padding: 20px; text-align: center;">
+                <h2 style="margin-bottom: 20px;">Online Status Checker</h2>
+                <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                    To see when I am online, it should say if I am coding this OS system and say LocalOwlYT
+                </p>
+                <img src="/Online.png" alt="Online Status" style="max-width: 100%; height: auto; margin-top: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+            </div>
+        `;
+      win.style.width = '500px';
+      win.style.height = '400px';
+      break;
+    case 'Intercraft':
+      winContent.innerHTML = `
+            <div class="browser-toolbar">
+                <button onclick="browserBack()">←</button>
+                <button onclick="browserForward()">→</button>
+                <button onclick="browserRefresh()">↻</button>
+                <input type="text" id="browser-url" placeholder="Enter URL or search..." 
+                       onkeydown="if(event.key==='Enter')browserNavigate(this.value)">
+                <button onclick="browserNavigate(document.getElementById('browser-url').value)">Go</button>
+            </div>
+            <div class="browser-content">
+                <iframe id="browser-frame" src="https://google.com" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+            </div>
+        `;
+      break;
+    case 'Discraft':
+      winContent.innerHTML = `
+        <div class="discraft-container">
+            <div class="discraft-sidebar">
+                <img src="/asd.jpg" class="discraft-logo" alt="Discraft">
+                <div class="discraft-users">
+                    ${Array.from(room.party.peers).map(peer => `
+                        <div class="discraft-user" onclick="initiateCall('${peer.username}')">
+                            <img src="https://images.websim.ai/avatar/${peer.username}" class="discraft-avatar">
+                            <span>${peer.username}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            <div class="discraft-main">
+                <div class="discraft-messages"></div>
+                <div class="discraft-input">
+                    <textarea 
+                        placeholder="Type a message..." 
+                        onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendDiscraftMessage(this.value);this.value='';}"
+                    ></textarea>
+                </div>
+                <div class="discraft-call-controls">
+                    <button class="discraft-call-button" onclick="endCall()">End Call</button>
+                    <div class="discraft-call-status">Not in call</div>
+                </div>
+            </div>
+        </div>
+    `;
+      updateDiscraftMessages();
+      break;
+    case 'Best Remixes':
+      winContent.innerHTML = `
+        <div class="remix-container">
+            <div class="remix-item">
+                <img src="/Best.png" alt="DeltaRune OS Remix">
+                <div class="remix-info">
+                    <h3>DeltaRune OS Remix</h3>
+                    <p><strong>Link:</strong> <a href="https://websim.ai/p/pwn3h67zpdfe3cw0i5sp" target="_blank">https://websim.ai/p/pwn3h67zpdfe3cw0i5sp</a></p>
+                </div>
+            </div>
+            
+            <div class="remix-item">
+                <img src="/Best1.png" alt="RobloxOS Java Dev Remix">
+                <div class="remix-info">
+                    <h3>RobloxOS Java Dev Remix</h3>
+                    <p><strong>Link:</strong> <a href="https://websim.ai/p/6uifsl9vmcpa05td1hat" target="_blank">https://websim.ai/p/6uifsl9vmcpa05td1hat</a></p>
+                </div>
+            </div>
+        </div>
+      `;
+      break;
+    case 'Cloud Storage':
+      winContent.innerHTML = `
+        <div class="browser-content">
+            <iframe src="https://websim.ai/p/d2sl0o945hjro8laf_bx" style="width:100%; height:100%; border:none;"></iframe>
+        </div>
+      `;
+      break;
+    case 'Paint':
+      winContent.innerHTML = `
+        <div class="browser-content">
+            <iframe src="https://websim.ai/p/037rhwr1gnamozce02va" style="width:100%; height:100%; border:none;"></iframe>
+        </div>
+      `;
+      break;
+    case 'Spotify':
+      winContent.innerHTML = `
+        <div class="browser-content">
+            <iframe src="https://websim.ai/p/nsk4jy0fxs0whb3fo8zv" style="width:100%; height:100%; border:none;"></iframe>
+        </div>
+      `;
+      break;
+    default:
+      winContent.innerHTML = `<div>App: ${title}</div>`;
+  }
+  win.appendChild(winContent);
+  const resizeHandleRight = document.createElement('div');
+  resizeHandleRight.className = 'resize-handle resize-handle-right';
+  win.appendChild(resizeHandleRight);
+  const resizeHandleBottom = document.createElement('div');
+  resizeHandleBottom.className = 'resize-handle resize-handle-bottom';
+  win.appendChild(resizeHandleBottom);
+  const resizeHandleBoth = document.createElement('div');
+  resizeHandleBoth.className = 'resize-handle resize-handle-both';
+  win.appendChild(resizeHandleBoth);
+  resizeHandleRight.addEventListener('mousedown', e => initResize(e, 'right', win));
+  resizeHandleBottom.addEventListener('mousedown', e => initResize(e, 'bottom', win));
+  resizeHandleBoth.addEventListener('mousedown', e => initResize(e, 'both', win));
+  switch (title) {
+    case 'Minecraft':
+      win.style.width = '800px';
+      win.style.height = '600px';
+      win.style.minWidth = '800px';
+      win.style.minHeight = '600px';
+      win.style.left = '50%';
+      win.style.top = '50%';
+      win.style.transform = 'translate(-50%, -50%)';
+      break;
+    case 'VM':
+      win.style.width = '800px';
+      win.style.height = '600px';
+      win.style.minWidth = '800px';
+      win.style.minHeight = '600px';
+      break;
+    case 'About':
+      win.style.width = '500px';
+      win.style.height = '400px';
+      win.style.minWidth = '500px';
+      win.style.minHeight = '400px';
+      break;
+    case 'Thank you':
+      win.style.width = '400px';
+      win.style.height = '300px';
+      win.style.minWidth = '400px';
+      win.style.minHeight = '300px';
+      break;
+    case 'VM Console':
+      win.style.width = '600px';
+      win.style.height = '400px';
+      win.style.minWidth = '600px';
+      win.style.minHeight = '400px';
+      break;
+    case 'Calculator':
+      win.style.width = '300px';
+      win.style.height = '400px';
+      win.style.minWidth = '300px';
+      win.style.minHeight = '400px';
+      break;
+    case 'Memory Viewer':
+      win.style.width = '500px';
+      win.style.height = '400px';
+      win.style.minWidth = '500px';
+      win.style.minHeight = '400px';
+      break;
+    case 'Intercraft':
+      win.style.width = '900px';
+      win.style.height = '600px';
+      win.style.minWidth = '900px';
+      win.style.minHeight = '600px';
+      break;
+    case 'Discraft':
+      win.style.width = '800px';
+      win.style.height = '600px';
+      win.style.minWidth = '800px';
+      win.style.minHeight = '600px';
+      break;
+    case 'How to see if I am Online':
+      win.style.width = '500px';
+      win.style.height = '400px';
+      win.style.minWidth = '500px';
+      win.style.minHeight = '400px';
+      break;
+    case 'Best Remixes':
+      win.style.width = '700px';
+      win.style.height = '500px';
+      win.style.minWidth = '700px';
+      win.style.minHeight = '500px';
+      break;
+    case 'Cloud Storage':
+      win.style.width = '900px';
+      win.style.height = '600px';
+      win.style.minWidth = '900px';
+      win.style.minHeight = '600px';
+      break;
+    case 'Paint':
+      win.style.width = '900px';
+      win.style.height = '600px';
+      win.style.minWidth = '900px';
+      win.style.minHeight = '600px';
+      break;
+    case 'Spotify':
+      win.style.width = '800px';
+      win.style.height = '600px';
+      win.style.minWidth = '800px';
+      win.style.minHeight = '600px';
+      break;
+    default:
+      win.style.width = '400px';
+      win.style.height = '300px';
+      win.style.minWidth = '400px';
+      win.style.minHeight = '300px';
+  }
+  document.body.appendChild(win);
+  windows.push(win);
+  makeWindowDraggable(win);
+  bringToFront(win);
+  return win;
+}
+function closeWindow(win) {
+  if (win) {
+    win.remove();
+    windows = windows.filter(w => w !== win);
+    if (activeWindow === win) {
+      activeWindow = windows[windows.length - 1] || null;
+    }
+    if (win.getAttribute('data-app') === 'Discraft') {
+      if (activeCall) {
+        endCall();
+      }
+    }
+  }
+}
+function makeWindowDraggable(win) {
+  const header = win.querySelector('.window-header');
+  header.style.cursor = `url('/sw.jpg'), move`;
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  header.addEventListener('mousedown', e => {
+    if (e.target === header || e.target.tagName === 'SPAN') {
+      isDragging = true;
+      bringToFront(win);
+      const rect = win.getBoundingClientRect();
+      initialX = e.clientX - rect.left;
+      initialY = e.clientY - rect.top;
+      document.addEventListener('mousemove', dragWindow);
+      document.addEventListener('mouseup', stopDragging);
+    }
+  });
+  function dragWindow(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    currentX = e.clientX - initialX;
+    currentY = e.clientY - initialY;
+    const maxX = window.innerWidth - win.offsetWidth;
+    const maxY = window.innerHeight - win.offsetHeight;
+    currentX = Math.max(0, Math.min(currentX, maxX));
+    currentY = Math.max(0, Math.min(currentY, maxY));
+    win.style.left = currentX + 'px';
+    win.style.top = currentY + 'px';
+    win.style.transform = 'none';
+  }
+  function stopDragging() {
+    isDragging = false;
+    document.removeEventListener('mousemove', dragWindow);
+    document.removeEventListener('mouseup', stopDragging);
+  }
+}
+function bringToFront(win) {
+  const maxZ = Math.max(0, ...Array.from(document.querySelectorAll('.window')).map(w => parseInt(getComputedStyle(w).zIndex) || 0));
+  win.style.zIndex = maxZ + 1;
+  activeWindow = win;
+}
+function toggleStartMenu() {
+  const startMenu = document.querySelector('.start-menu');
+  const startButton = document.querySelector('.start-button');
+  const startIcon = document.getElementById('start-icon');
+  const openSound = document.getElementById('start-open-sound');
+  const closeSound = document.getElementById('start-close-sound');
+  startMenuOpen = !startMenuOpen;
+  startMenu.style.display = startMenuOpen ? 'block' : 'none';
+  if (startMenuOpen) {
+    startButton.style.background = 'linear-gradient(to bottom, #4CA123, #377D19) !important';
+    startIcon.src = '/co.png';
+    if (openSound) {
+      openSound.play().catch(err => console.log('Open sound playback failed:', err));
+    }
+  } else {
+    startButton.style.background = 'linear-gradient(to bottom, #3C8B1A, #2E6915) !important';
+    startIcon.src = '/cc.png';
+    if (closeSound) {
+      closeSound.play().catch(err => console.log('Close sound playback failed:', err));
+    }
+  }
+}
+function minimizeWindow(win) {
+  win.classList.toggle('minimized');
+}
+function maximizeWindow(win) {
+  win.classList.toggle('maximized');
+  if (win.classList.contains('maximized')) {
+    win._prevState = {
+      width: win.style.width,
+      height: win.style.height,
+      left: win.style.left,
+      top: win.style.top,
+      transform: win.style.transform
+    };
+    win.style.width = '100%';
+    win.style.height = 'calc(100vh - 40px)';
+    win.style.left = '0';
+    win.style.top = '0';
+    win.style.transform = 'none';
+  } else if (win._prevState) {
+    win.style.width = win._prevState.width;
+    win.style.height = win._prevState.height;
+    win.style.left = win._prevState.left;
+    win.style.top = win._prevState.top;
+    win.style.transform = win._prevState.transform;
+  }
+}
+document.querySelector('.start-button').addEventListener('click', e => {
+  e.stopPropagation();
+  toggleStartMenu();
+});
+function handleStartMenuClick(action) {
+  switch (action) {
+    case 'startup':
+      toggleStartMenu();
+      const startupApp = new StartupApp();
+      startupApp.show();
+      break;
+    case 'programs':
+      toggleStartMenu();
+      createWindow('Programs');
+      break;
+    case 'system':
+      toggleStartMenu();
+      createWindow('System Info');
+      break;
+    case 'memory':
+      toggleStartMenu();
+      createWindow('Memory Viewer');
+      break;
+    case 'calculator':
+      toggleStartMenu();
+      createWindow('Calculator');
+      break;
+    case 'vm':
+      toggleStartMenu();
+      createWindow('VM');
+      break;
+    case 'minecraft':
+      toggleStartMenu();
+      createWindow('Minecraft');
+      break;
+    case 'intercraft':
+      toggleStartMenu();
+      createWindow('Intercraft');
+      break;
+    case 'kernel':
+      toggleStartMenu();
+      createWindow('Kernel');
+      break;
+    case 'appstore':
+      toggleStartMenu();
+      createWindow('App Store');
+      break;
+    case 'files':
+      toggleStartMenu();
+      createWindow('File Explorer');
+      break;
+    case 'gamecoder':
+      toggleStartMenu();
+      createWindow('Game Coder');
+      break;
+    case 'restore':
+      toggleStartMenu();
+      createWindow('System Restore');
+      break;
+    case 'settings':
+      toggleStartMenu();
+      createWindow('Settings');
+      break;
+    case 'about':
+      toggleStartMenu();
+      createWindow('About');
+      break;
+    case 'thanks':
+      toggleStartMenu();
+      createWindow('Thank you');
+      break;
+    case 'online':
+      toggleStartMenu();
+      createWindow('How to see if I am Online');
+      break;
+    case 'discraft':
+      toggleStartMenu();
+      createWindow('Discraft');
+      break;
+    case 'bestremixes':
+      toggleStartMenu();
+      createWindow('Best Remixes');
+      break;
+    case 'cloudstorage':
+      toggleStartMenu();
+      createWindow('Cloud Storage');
+      break;
+    case 'paint':
+      toggleStartMenu();
+      createWindow('Paint');
+      break;
+    case 'spotify':
+      toggleStartMenu();
+      createWindow('Spotify');
+      break;
+  }
+}
+function browserBack() {
+  const frame = document.getElementById('browser-frame');
+  frame.contentWindow.history.back();
+}
+function browserForward() {
+  const frame = document.getElementById('browser-frame');
+  frame.contentWindow.history.forward();
+}
+function browserRefresh() {
+  const frame = document.getElementById('browser-frame');
+  frame.src = frame.src;
+}
+function browserNavigate(url) {
+  const frame = document.getElementById('browser-frame');
+  if (!url.includes('.') || url.includes(' ')) {
+    url = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
+  } else if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'https://' + url;
+  }
+  frame.src = url;
+  document.getElementById('browser-url').value = url;
+}
+let activeCall = null;
+let messages = [];
+let connectedUsers = new Set();
+function createDiscraftMessage(message) {
+  return {
+    id: Date.now(),
+    username: room.party.client.username,
+    avatar: `https://images.websim.ai/avatar/${room.party.client.username}`,
+    text: message,
+    timestamp: new Date().toISOString()
+  };
+}
+room.onmessage = event => {
+  if (event.data.type === 'discraft_message') {
+    addMessageToChat(event.data.message);
+  } else if (event.data.type === 'discraft_call_request') {
+    handleCallRequest(event.data);
+  } else if (event.data.type === 'discraft_call_response') {
+    handleCallResponse(event.data);
+  }
+};
+function addMessageToChat(message) {
+  messages.push(message);
+  updateDiscraftMessages();
+}
+function updateDiscraftMessages() {
+  const messagesContainer = document.querySelector('.discraft-messages');
+  if (messagesContainer) {
+    messagesContainer.innerHTML = messages.map(msg => `
+            <div class="discraft-message">
+                <img src="${msg.avatar}" class="discraft-avatar">
+                <div class="discraft-message-content">
+                    <div class="discraft-username">${msg.username}</div>
+                    <div class="discraft-text">${msg.text}</div>
+                </div>
+            </div>
+        `).join('');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+}
+function sendDiscraftMessage(text) {
+  if (!text.trim()) return;
+  const message = createDiscraftMessage(text);
+  room.send({
+    type: 'discraft_message',
+    message: message
+  });
+  addMessageToChat(message);
+  const textarea = document.querySelector('.discraft-input textarea');
+  if (textarea) {
+    textarea.value = '';
+    textarea.focus();
+  }
+}
+function initiateCall(targetUser) {
+  room.send({
+    type: 'discraft_call_request',
+    target: targetUser,
+    caller: room.party.client.username
+  });
+}
+function handleCallRequest(data) {
+  if (confirm(`${data.caller} is calling. Accept?`)) {
+    room.send({
+      type: 'discraft_call_response',
+      response: 'accept',
+      caller: data.caller,
+      target: room.party.client.username
+    });
+    startCall(data.caller);
+  } else {
+    room.send({
+      type: 'discraft_call_response',
+      response: 'reject',
+      caller: data.caller,
+      target: room.party.client.username
+    });
+  }
+}
+function handleCallResponse(data) {
+  if (data.response === 'accept') {
+    startCall(data.target);
+  } else if (data.response === 'reject') {}
+}
+function startCall(targetUser) {
+  activeCall = targetUser;
+  const statusEl = document.querySelector('.discraft-call-status');
+  if (statusEl) {
+    statusEl.textContent = `In call with ${targetUser}`;
+    statusEl.style.background = '#43b581';
+  }
+}
+function endCall() {
+  if (activeCall) {
+    room.send({
+      type: 'discraft_call_end',
+      target: activeCall
+    });
+  }
+  activeCall = null;
+  const statusEl = document.querySelector('.discraft-call-status');
+  if (statusEl) {
+    statusEl.textContent = 'Not in call';
+    statusEl.style.background = '#747f8d';
+  }
+}
+function handleTerminalInput(event) {
+  if (event.key === 'Enter') {
+    const input = document.getElementById('terminal-input');
+    const output = document.getElementById('terminal-output');
+    const command = input.value.trim().toLowerCase();
+    output.innerHTML += `<br>> ${input.value}`;
+    switch (command) {
+      case 'help':
+        output.innerHTML += '<br>Available commands: help, clear, status, version, memory';
+        break;
+      case 'clear':
+        output.innerHTML = 'Terminal Access<br>>';
+        break;
+      case 'status':
+        output.innerHTML += '<br>System Status: Running';
+        output.innerHTML += '<br>Memory Usage: ' + currentSettings.system.memoryAllocation + 'MB';
+        output.innerHTML += '<br>Active Windows: ' + windows.length;
+        break;
+      case 'version':
+        output.innerHTML += '<br>MinecraftOS Version 1.4.7';
+        break;
+      case 'memory':
+        let usedMemory = Math.floor(Math.random() * currentSettings.system.memoryAllocation);
+        output.innerHTML += '<br>Total Memory: ' + currentSettings.system.memoryAllocation + 'MB';
+        output.innerHTML += '<br>Used Memory: ' + usedMemory + 'MB';
+        output.innerHTML += '<br>Free Memory: ' + (currentSettings.system.memoryAllocation - usedMemory) + 'MB';
+        break;
+      default:
+        output.innerHTML += '<br>Unknown command. Type "help" for available commands.';
+    }
+    input.value = '';
+    output.scrollTop = output.scrollHeight;
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const browserFrame = document.getElementById('browser-frame');
+  if (browserFrame) {
+    browserFrame.onerror = () => {
+      browserFrame.src = 'https://www.google.com';
+    };
+  }
+});
+function initResize(e, type, win) {
+  isResizing = true;
+  resizeType = type;
+  const rect = win.getBoundingClientRect();
+  resizeStartX = e.clientX;
+  resizeStartY = e.clientY;
+  resizeStartWidth = rect.width;
+  resizeStartHeight = rect.height;
+  bringToFront(win);
+  document.addEventListener('mousemove', handleResize);
+  document.addEventListener('mouseup', stopResize);
+  e.preventDefault();
+  e.stopPropagation();
+}
+function handleResize(e) {
+  if (!isResizing) return;
+  const win = activeWindow;
+  if (!win) return;
+  const deltaX = e.clientX - resizeStartX;
+  const deltaY = e.clientY - resizeStartY;
+  const minWidth = parseInt(getComputedStyle(win).minWidth) || 400;
+  const minHeight = parseInt(getComputedStyle(win).minHeight) || 300;
+  const appType = win.getAttribute('data-app');
+  let appMinWidth = minWidth;
+  let appMinHeight = minHeight;
+  const computedStyle = getComputedStyle(win);
+  appMinWidth = parseInt(computedStyle.getPropertyValue('min-width')) || minWidth;
+  appMinHeight = parseInt(computedStyle.getPropertyValue('min-height')) || minHeight;
+  if (resizeType === 'right' || resizeType === 'both') {
+    const newWidth = Math.max(appMinWidth, resizeStartWidth + deltaX);
+    win.style.width = newWidth + 'px';
+  }
+  if (resizeType === 'bottom' || resizeType === 'both') {
+    const newHeight = Math.max(appMinHeight, resizeStartHeight + deltaY);
+    win.style.height = newHeight + 'px';
+  }
+  const iframe = win.querySelector('iframe');
+  if (iframe) {
+    iframe.style.width = '100%';
+    iframe.style.height = 'calc(100% - 30px)';
+  }
+}
+function stopResize() {
+  isResizing = false;
+  resizeType = null;
+  document.removeEventListener('mousemove', handleResize);
+  document.removeEventListener('mouseup', stopResize);
+}
+document.addEventListener('mouseup', () => {
+  if (isResizing) {
+    stopResize();
+  }
+});</script>
+</body>
+</html>
